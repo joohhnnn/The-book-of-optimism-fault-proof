@@ -1,5 +1,8 @@
 # Guide Outline
 
+## Finished work
+[01-what-is-fault-proof](https://github.com/joohhnnn/The-book-of-optimism-fault-proof/blob/main/01-what-is-fault-proof.md)
+
 ## Introduction
 
 - Definition of Fault Proof
