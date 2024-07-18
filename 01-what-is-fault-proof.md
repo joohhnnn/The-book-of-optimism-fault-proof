@@ -42,7 +42,17 @@ Before delving into the formal mechanisms and roles of Fault Proof, let's first 
 
 Based on these requirements, we can design a simple on-chain smart contract:
 
-[CODE]
+```solidity
+
+contract SimpleFPContract {
+    bytes32 public state;
+
+    function setState(bytes32 _state) public {
+        state = _state;
+    }
+}
+
+```
 
 However, there is a problem with this design: the state can be arbitrarily modified. Even though maintainers may correct the state each time, this method still has significant shortcomings. So, how can we improve this? Can we introduce a judge role to make determinations? Unfortunately, if we only introduce a judge, this role would have absolute power similar to the previous Proposer.
 
@@ -50,7 +60,7 @@ Therefore, why not abstract the judge's decision-making logic and implement a si
 
 ### Abstracted Approval Logic and Design
 
-When a state dispute occurs, a judge usually intervenes, reruns all transactions on L2 until the final state is recalculated, and compares it with the state proposed by the disputing parties to determine the correct one. We can simulate this process by implementing a smart contract similar to a MIPS virtual machine on the blockchain. When a dispute arises, simply run the MIPS virtual machine on the blockchain to obtain the correct state.
+When a state dispute occurs, a judge usually intervenes, reruns all transactions on L2 until the final state is recalculated, and compares it with the state proposed by the disputing parties to determine the correct one. We can simulate this process by implementing a smart contract similar to a [MIPS](https://www.linux-mips.org/wiki/Syscall) virtual machine on the blockchain. When a dispute arises, simply run the MIPS virtual machine on the blockchain to obtain the correct state.
 
 But is this method perfect? The answer is no, as the cost of executing this entire logic on the blockchain is extremely high, potentially exceeding 1000 ETH in gas fees, which is clearly unacceptable.
 
@@ -67,3 +77,24 @@ Using binary search, we can quickly locate the root of the disagreement between 
 ### Design Feedback
 
 In the steps above, we designed a preliminary Fault Proof model, but there are still many issues to be resolved. Next, we will detail the various components of Fault Proof and in the following chapters, compare our preliminary design with the formal Fault Proof, and discuss the issues the formal version addresses that we have not yet considered.
+
+## Components of Fault Proof
+
+Fault Proof primarily consists of the following major components, which will be detailed in the next chapter.
+
+### [Fault Proof Interactive Dispute Game](https://github.com/ethereum-optimism/specs/blob/main/specs/fault-proof/index.md#fault-proof-interactive-dispute-game)
+This part is responsible for the on-chain implementation of a binary search to determine the smallest set of differing instructions. Similar to our earlier binary search method for finding differences, it includes more detail. For example, in our design, the binary search must go down to the lowest level, i.e., identify the point of error and verify it with the on-chain virtual machine. The Fault Proof Interactive Dispute Game incorporates mechanisms such as a chess clock, allowing one party to stop when they realize their mistake during the binary search, thus avoiding unnecessary gas expenditure.
+
+### [Fault Proof VM](https://github.com/ethereum-optimism/specs/blob/main/specs/fault-proof/index.md#fault-proof-vm)
+Our on-chain implemented instruction virtual machine, such as CANNON (a MIPS virtual machine). It is a smart contract that simulates backend logic and can verify and confirm the correct state when data disputes occur by executing virtual machine code.
+
+### [Fault Proof Program](https://github.com/ethereum-optimism/specs/blob/main/specs/fault-proof/index.md#fault-proof-program)
+This is the client program that both disputing parties use to execute all operations, such as attacking or defending. It coordinates the entire dispute resolution process, ensuring a fair contest on the blockchain.
+
+### [Pre-image Oracle](https://github.com/ethereum-optimism/specs/blob/main/specs/fault-proof/index.md#fault-proof-interactive-dispute-game)
+At the most granular level of execution, this role provides the necessary data sources. When specific data needs to be verified, the Pre-image Oracle offers a reliable source of information to support the dispute resolution process.
+
+### [OP-Challenger](https://github.com/ethereum-optimism/optimism/blob/develop/op-challenger/README.md)
+OP-Challenger is an operation stack challenge agent used in dispute games, including but not limited to proof games, fault games, and validity games. It is a service that directly calls the Program or Dispute Game, including automatic listening for on-chain events, triggering attack or defense programs. This agent effectively coordinates on-chain and off-chain resources to optimize the entire dispute resolution process.
+
+Through the collaborative work of these components, Fault Proof effectively addresses and resolves the correctness of on-chain data, providing a decentralized and efficient verification mechanism. The next chapter will delve deeper into how these components work together and showcase Fault Proof's application through case studies.
