@@ -3,7 +3,7 @@
 ## Finished work
 [01-what-is-fault-proof](https://github.com/joohhnnn/The-book-of-optimism-fault-proof/blob/main/01-what-is-fault-proof.md)
 
-[02-fault-dispute-game](https://github.com/joohhnnn/The-book-of-optimism-fault-proof-CN/blob/main/02-fault-dispute-game.md)
+[02-fault-dispute-game](https://github.com/joohhnnn/The-book-of-optimism-fault-proof/blob/main/02-fault-dispute-game.md)
 
 ## In progress 
 
