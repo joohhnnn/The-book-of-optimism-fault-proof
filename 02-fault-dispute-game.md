@@ -23,9 +23,11 @@ The game-tree is a crucial concept. For example, the root of a game-tree X repre
 
 ### [Claims](https://github.com/ethereum-optimism/specs/blob/main/specs/fault-proof/stage-one/fault-dispute-game.md#claims)
 
-Claims can be understood as the state hash represented by an instruction in an L2 transaction.
+Claims can be understood as the state hash representing the result of executing a specific instruction within an L2 transaction. The state refers to the configuration of the MIPS virtual machine, including memory layout, register distribution, etc.
 ![image](./resources/claims.png)
 As illustrated, it represents the execution flow of the first 16 instructions of a transaction, each execution generating a state hash, known as a Claim.
+
+Note: The Root Claim is special. The Root Claim is consistent with the old Output Hash, which is composed of the stateRoot, messagePasserStorageRoot, and latestBlockhash.
 
 Here, we introduce the concept of `trace index`.
 
