@@ -18,7 +18,7 @@ When a program is compiled and packaged into an ELF file, its memory layout (suc
 
 The [runDerivation()](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/client/program.go#L63) function implements the execution process of L2 state changes within the op-stack.
 
-```
+```golang
 // runDerivation executes the L2 state transition, given a minimal interface to retrieve data.
 func runDerivation(logger log.Logger, cfg *rollup.Config, l2Cfg *params.ChainConfig, l1Head common.Hash, l2OutputRoot common.Hash, l2Claim common.Hash, l2ClaimBlockNum uint64, l1Oracle l1.Oracle, l2Oracle l2.Oracle) error {
 	l1Source := l1.NewOracleL1Client(logger, l1Oracle, l1Head)
@@ -48,7 +48,7 @@ When Cannon starts, it also initiates the Host module (`./bin/op-program`, refer
 
 Since the Host is initiated with Cannon’s startup command, it acts as a submodule to Cannon. The two communicate via a pair of `FileChannel` objects, such as `pClientRW, pOracleRW`. The `pOracleRW` channel is passed to the subprocess during command creation and accessed via methods like `pWriter := os.NewFile(6, "pOracleWriter")`.
 
-```
+```golang
 func NewProcessPreimageOracle(name string, args []string) (*ProcessPreimageOracle, error) {
 	if name == "" {
 		return &ProcessPreimageOracle{}, nil
@@ -76,7 +76,7 @@ func NewProcessPreimageOracle(name string, args []string) (*ProcessPreimageOracl
 
 In the subprocess code, these descriptors are used:
 
-```
+```golang
 // CreatePreimageChannel returns a FileChannel for the preimage oracle in a detached context
 func CreatePreimageChannel() oppio.FileChannel {
 	r := os.NewFile(PClientRFd, "preimage-oracle-read")
@@ -88,7 +88,7 @@ Once communication is established, when Cannon needs to retrieve pre-image data 
 
 The core function is the [GetPreimage()](https://github.com/ethereum-optimism/optimism/blob/develop/op-program/host/prefetcher/prefetcher.go#L80) function, which receives the key passed from Cannon and retrieves the content.
 
-```
+```golang
 func (p *Prefetcher) GetPreimage(ctx context.Context, key common.Hash) ([]byte, error) {
 	p.logger.Trace("Pre-image requested", "key", key)
 	pre, err := p.kvStore.Get(key)

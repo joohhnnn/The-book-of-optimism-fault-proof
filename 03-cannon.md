@@ -37,7 +37,7 @@ MIPS mainly includes two types of instructions:
 Two key types of data structures include:
 1. State
 
-```
+```solidity
     struct State {
         bytes32 memRoot;
         bytes32 preimageKey;
@@ -84,7 +84,7 @@ For the above steps 3, 4, and 5, further explanations are not provided here, but
 - Step 5: [Detailed code](https://github.com/ethereum-optimism/optimism/blob/5e317379fae65b76f5a6ee27581f0e62d2fe017a/packages/contracts-bedrock/src/cannon/libraries/MIPSInstructions.sol#L41)
 
 
-```
+```solidity
    function step(bytes calldata _stateData, bytes calldata _proof, bytes32 _localContext) public returns (bytes32) {
         unchecked {
             State memory state;
@@ -194,7 +194,7 @@ Execute and provide input parameters for the move/step actions in the game.
 #### Execution
 When we execute `cannon run -h`, we can see the flags that need to be passed at runtime. Through these flags, we can gain a deeper understanding of the mechanism of Cannon's off-chain execution.
 
-```
+```shell
 ./bin/cannon run -h
 NAME:
    cannon run - Run VM step(s) and generate proof data to replicate onchain.
@@ -235,7 +235,7 @@ Here are some of the core flags:
 
 The command for Cannon is actually not designed for manual single executions but is designed for use with op-challenger. Let's look at how it is used in op-challenger.
 
-```
+```golang
 func (e *Executor) GenerateProof(ctx context.Context, dir string, i uint64) error {
 	snapshotDir := filepath.Join(dir, snapsDir)
 	start, err := e.selectSnapshot(e.logger, snapshotDir, e.absolutePreState, i)
@@ -270,7 +270,7 @@ The core component of the Cannon execution off-chain lies in the [Step()](https:
 
 As can be seen, the step logic in the off-chain Go code aligns closely with the on-chain Solidity step logic. Initially, it loads the memory and other states into a fixed position, then processes further in mipsStep(), such as determining if it's a syscall, among other operations.
 
-```
+```golang
 func (m *InstrumentedState) Step(proof bool) (wit *mipsevm.StepWitness, err error) {
 	m.preimageOracle.Reset()
 	m.memoryTracker.Reset(proof)
@@ -302,7 +302,7 @@ func (m *InstrumentedState) Step(proof bool) (wit *mipsevm.StepWitness, err erro
 	return
 }
 ```
-```
+```golang
 func (m *InstrumentedState) mipsStep() error {
 	if m.state.Exited {
 		return nil

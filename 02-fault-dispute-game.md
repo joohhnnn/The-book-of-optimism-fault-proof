@@ -97,7 +97,7 @@ Let's outline an actual process to understand the entire workflow:
 
 [Full code link](https://github.com/ethereum-optimism/optimism/blob/d091bb33ceba0931205584d88b8c2bd84404e466/packages/contracts-bedrock/src/dispute/DisputeGameFactory.sol#L84)
 
-```
+```solidity
 
     function create(
         GameType _gameType,
@@ -153,7 +153,7 @@ The main operations of the `move()` function include:
 2. Verifying the validity of the submitted next claim data, conducting specific checks to ensure the correctness of each move's bond collateral and the clock, and recalculating the remaining chess clock time.
 3. Storing the results in claimData and subgame for subsequent operations.
 
-```
+```solidity
     function move(Claim _disputed, uint256 _challengeIndex, Claim _claim, bool _isAttack) public payable virtual {
 
         ClaimData memory parent = claimData[_challengeIndex];
@@ -231,7 +231,7 @@ Key operations include:
 2. Execute in the VM to determine validity, and in the case of defend, determine which scenario it belongs to.
 3. If the rebuttal is successful, record the data.
 
-```
+```solidity
 function step(
     uint256 _claimIndex,
     bool _isAttack,
@@ -291,11 +291,11 @@ The operations of resolveClaim are divided into two scenarios:
 
 - Handling subgames, with `_numToResolve` as 0.
     1. Check if the chess clock has already run out.
-    ```
+    ```solidity
         if (challengeClockDuration.raw() < MAX_CLOCK_DURATION.raw()) revert ClockNotExpired();
     ```
     2. Determine if it is the finest granularity subgame. If it is, credit the paid bond to the account of the successful rebuttal, mark the subgame as resolved, and return.
-    ```
+    ```solidity
         if (challengeIndicesLen == 0 && _claimIndex != 0) {
             address counteredBy = subgameRootClaim.counteredBy;
             address recipient = counteredBy == address(0) ? subgameRootClaim.claimant : counteredBy;
@@ -307,11 +307,11 @@ The operations of resolveClaim are divided into two scenarios:
 
 - Handling the main claim, where `_numToResolve` is the number of subgames to be verified in a single transaction. The sum of subgames processed in each operation must equal the total number of subgames.
     1. Check if the chess clock has already run out.
-    ```
+    ```solidity
         if (challengeClockDuration.raw() < MAX_CLOCK_DURATION.raw()) revert ClockNotExpired();
     ```
     2. Determine if this is the first time the current claim is being executed with resolveClaim. If so, create and initialize a checkpoint to handle the case of multiple transactions completing resolveClaim together.
-    ```
+    ```solidity
         // If the checkpoint does not currently exist, initialize the current left most position as max u128.
         if (!checkpoint.initialCheckpointComplete) {
             checkpoint.leftmostPosition = Position.wrap(type(uint128).max);
@@ -321,7 +321,7 @@ The operations of resolveClaim are divided into two scenarios:
         }
     ```
     3. Loop to verify if all subtasks are resolved, ensuring during the loop to secure the [leftmost claim incentives](https://github.com/ethereum-optimism/specs/blob/dfa8ea9568b0e35827be763fa8e6a2eeb9d90704/specs/fault-proof/stage-one/bond-incentives.md#leftmost-claim-incentives).
-    ```
+    ```solidity
         uint256 lastToResolve = checkpoint.subgameIndex + _numToResolve;
         uint256 finalCursor = lastToResolve > challengeIndicesLen ? challengeIndicesLen : lastToResolve;
         for (uint256 i = checkpoint.subgameIndex; i < finalCursor; i++) {
@@ -345,7 +345,7 @@ The operations of resolveClaim are divided into two scenarios:
         }
     ```
     4. If there are no unresolved subgames for the claim, determine the rebuttal based on the current claim's rebuttal status and distribute the bond rewards.
-    ```
+    ```solidity
         // Increase the checkpoint's cursor position by the number of children that were checked.
         checkpoint.subgameIndex = uint32(finalCursor);
 
@@ -384,7 +384,7 @@ resolve:
 1. Verify the resolution status and update the global state.
 2. Update the latest L2 block number and root hash in the ANCHOR_STATE_REGISTRY.
 
-```
+```solidity
     function resolve() external returns (GameStatus status_) {
         // INVARIANT: Resolution cannot occur unless the game is currently in progress.
         if (status != GameStatus.IN_PROGRESS) revert GameNotInProgress();

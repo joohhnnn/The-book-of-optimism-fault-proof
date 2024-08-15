@@ -16,7 +16,7 @@ The monitor component subscribes to blocks on L1. Whenever a new block is genera
 Use the [StartMonitoring()](https://github.com/ethereum-optimism/optimism/blob/develop/op-challenger/game/monitor.go#L152) function to initiate monitoring. The `onNewL1Head()` function is passed as a callback parameter to `resubscribeFunction()` and ultimately registered to `eth.WatchHeadChanges`.
 It checks every 10 seconds, and upon retrieving a new block, the hash and number of the block are passed into `progressGames()` for processing.
 
-```
+```golang
 
 func (m *gameMonitor) onNewL1Head(ctx context.Context, sig eth.L1BlockRef) {
 	m.clock.SetTime(sig.Time)
@@ -53,7 +53,7 @@ func (m *gameMonitor) StartMonitoring() {
 
 The [progressGames](https://github.com/ethereum-optimism/optimism/blob/f940301caf531996eee4172e710b0decb7b78dde/op-challenger/game/monitor.go#L106) function executes upon detecting a new block. Its primary role is to retrieve all valid games and pass these games into the Schedule for subsequent task dispatching. It is important to note that the schedule is divided into multiple categories, such as bondSchedule (for managing claims corresponding to bonds) and pre-image schedule (for uploading pre-image data). Here, we will only discuss the basic schedule for move and step tasks.
 
-```
+```golang
 func (m *gameMonitor) progressGames(ctx context.Context, blockHash common.Hash, blockNumber uint64) error {
 	minGameTimestamp := clock.MinCheckedTimestamp(m.clock, m.gameWindow)
 	games, err := m.source.GetGamesAtOrAfter(ctx, blockHash, minGameTimestamp)
@@ -83,7 +83,7 @@ func (m *gameMonitor) progressGames(ctx context.Context, blockHash common.Hash, 
 The [schedule()](https://github.com/ethereum-optimism/optimism/blob/f940301caf531996eee4172e710b0decb7b78dde/op-challenger/game/scheduler/coordinator.go#L60) function processes the received games and determines in createJob whether new sub-operations are needed for each game. Then, it uses the enqueueJob function to add all sub-operations to the jobQueue for transmission.
 
 
-```
+```golang
 func (c *coordinator) schedule(ctx context.Context, games []types.GameMetadata, blockNumber uint64) error {
     
         ……
@@ -117,7 +117,7 @@ func (c *coordinator) schedule(ctx context.Context, games []types.GameMetadata, 
 ### Generating Action
 When data appears in the jobQueue, it is transformed into specific actions in the [CalculateNextActions()](https://github.com/ethereum-optimism/optimism/blob/f940301caf531996eee4172e710b0decb7b78dde/op-challenger/game/fault/solver/game_solver.go#L26). For example, with the step action, when the game depth reaches MaxDepth, we generate the corresponding step action.
 
-```
+```golang
 func (s *GameSolver) CalculateNextActions(ctx context.Context, game types.Game) ([]types.Action, error) {
 
         ……
@@ -140,7 +140,7 @@ func (s *GameSolver) CalculateNextActions(ctx context.Context, game types.Game) 
 	return actions, nil
 }
 ```
-```
+```golang
 func (s *GameSolver) calculateStep(ctx context.Context, game types.Game, claim types.Claim, agreedClaims *honestClaimTracker) (*types.Action, error) {
 	if claim.CounteredBy != (common.Address{}) {
 		return nil, nil
@@ -163,7 +163,7 @@ func (s *GameSolver) calculateStep(ctx context.Context, game types.Game, claim t
 }
 ```
 
-```
+```golang
 func (s *claimSolver) AttemptStep(ctx context.Context, game types.Game, claim types.Claim, honestClaims *honestClaimTracker) (*StepData, error) {
 
         ……
@@ -184,7 +184,7 @@ func (s *claimSolver) AttemptStep(ctx context.Context, game types.Game, claim ty
 
 The `GetStepData()` function indirectly calls the [DoGenerateProof()](https://github.com/ethereum-optimism/optimism/blob/develop/op-challenger/game/fault/trace/vm/executor.go#L74) function, which initiates Cannon to produce the necessary state data and proof data for the step.
 
-```
+```golang
 func (e *Executor) DoGenerateProof(ctx context.Context, dir string, begin uint64, end uint64, extraVmArgs ...string) error {
         ……
 	args := []string{
@@ -233,7 +233,7 @@ The obtained actions are executed in [PerformAction()](https://github.com/ethere
 - Decides whether it is a Step operation.
 - Evaluates whether the root claim can be denied from the perspective of L2BlockNumber.
 
-```
+```golang
 func (r *FaultResponder) PerformAction(ctx context.Context, action types.Action) error {
 	if action.OracleData != nil {
 		var preimageExists bool
