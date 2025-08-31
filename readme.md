@@ -27,6 +27,10 @@
 - [PreimageOracle](https://etherscan.io/address/0xD326E10B8186e90F4E2adc5c13a2d0C137ee8b34)
 - [AnchorStateRegistryProxy](https://etherscan.io/address/0x18DAc71c228D1C32c99489B7323d441E1175e443)
 
+## TODO
+- Multithread Fault Proof VM
+- Multi-type Fault Proof (E.G. KONA)
+
 ## Reference Materials
 
 ### Articles
